@@ -12,12 +12,14 @@
     "url": "https://github.com/walthercurodelacruz/DF-DECODE.git"
   },
   "scripts": {
+    "postinstall": "node -e \"const fs=require('fs');if(fs.existsSync('node_modules/electron/install.js')&&!fs.existsSync('node_modules/electron/path.txt'))require('./node_modules/electron/install.js');\"",
     "start": "electron . --no-sandbox",
     "test": "node tests/unit-tests.js",
     "build:linux": "electron-builder --linux deb AppImage && npm run build:linux:rpm",
     "build:linux:deb": "electron-builder --linux deb",
     "build:linux:rpm": "electron-builder --linux rpm || bash scripts/build-rpm.sh",
-    "build:win": "electron-builder --win dir && (cd scripts && makensis installer.nsi)",
+    "build:win": "node scripts/build-win.js",
+    "build:win:zip": "node scripts/build-win.js zip",
     "build:all": "npm run build:linux && npm run build:win",
     "dist": "electron-builder"
   },
@@ -25,6 +27,7 @@
     "appId": "com.dfdecode.app",
     "productName": "df-decode",
     "copyright": "Copyright © 2026 Walther Curo De La Cruz — Licencia GNU GPL v3.0",
+    "afterPack": "scripts/after-pack.js",
     "files": [
       "index.html",
       "manifest.json",
@@ -120,6 +123,10 @@
       "shortcutName": "df-decode",
       "uninstallDisplayName": "df-decode — Desinstalar",
       "artifactName": "df-decode-setup-${version}.${ext}",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "runAfterFinish": true,
       "packElevateHelper": false
     }
   },

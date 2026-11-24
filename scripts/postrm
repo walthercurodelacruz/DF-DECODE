@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+# 1. Limpiar perfil de AppArmor al desinstalar
+if [ -f "/etc/apparmor.d/df-decode" ]; then
+    if command -v apparmor_parser >/dev/null 2>&1; then
+        apparmor_parser -R /etc/apparmor.d/df-decode 2>/dev/null || true
+    fi
+    rm -f "/etc/apparmor.d/df-decode" 2>/dev/null || true
+fi
+
+# 2. Limpiar enlace alternativo si existe
+rm -f '/usr/bin/df-decode' 2>/dev/null || true
+rm -f '/usr/bin/decod' 2>/dev/null || true
+
+# 3. Actualizar bases de datos del sistema
+if hash update-mime-database 2>/dev/null; then
+    update-mime-database /usr/share/mime || true
+fi
+
+if hash update-desktop-database 2>/dev/null; then
+    update-desktop-database /usr/share/applications || true
+fi
+
+exit 0

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="modern-dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pruebas Unitarias — df-decode v1.0</title>
+  <link rel="stylesheet" href="assets/fontawesome/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <style>
+    body {
+      overflow-y: auto;
+      padding: 28px;
+      user-select: text;
+    }
+    .test-container {
+      max-width: 920px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .test-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-surface);
+      padding: 18px 22px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .summary-banner {
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .summary-pass {
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+    .summary-fail {
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .suite-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .suite-title {
+      padding: 10px 16px;
+      background: var(--bg-app);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13.5px;
+    }
+    .test-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+    }
+    .test-row:last-child {
+      border-bottom: none;
+    }
+    .badge-pass {
+      color: var(--success);
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+    .badge-fail {
+      color: var(--danger);
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+    .error-detail {
+      color: var(--danger);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <div>
+        <h2><i class="fa-solid fa-vial-circle-check" style="color:var(--accent);margin-right:8px;"></i>Suite de Pruebas Unitarias e Integración — df-decode <span class="brand-badge">v1.0</span></h2>
+        <p style="color:var(--text-muted);margin-top:4px;">
+          Verificación automática de Evaluador DFD, Funciones, Vectores/Matrices, Subprogramas Recursivos, Formato .dfx/.dfd y Generador de Código.
+        </p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-primary" id="btn-rerun"><i class="fa-solid fa-rotate"></i> Re-ejecutar Pruebas</button>
+        <a href="index.html" class="btn-secondary" style="text-decoration:none;display:inline-flex;align-items:center;"><i class="fa-solid fa-arrow-left"></i> Volver a df-decode</a>
+      </div>
+    </div>
+
+    <div id="test-summary"></div>
+    <div id="test-results" style="display:flex;flex-direction:column;gap:14px;"></div>
+
+    <footer style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px 0 4px;">
+      © <span id="credits-year">2026</span> <strong>df-decode v1.0</strong> — Desarrollado por <strong style="color:var(--accent);">Walther Curo De La Cruz</strong> · Licencia GNU GPL v3.0
+    </footer>
+    <script>document.getElementById('credits-year').textContent = new Date().getFullYear();</script>
+  </div>
+
+  <script src="js/evaluator.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/dfd-format.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/codegen.js"></script>
+  <script src="js/examples.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/interpreter.js"></script>
+  <script src="tests/unit-tests.js"></script>
+  <script>
+    async function executeSuiteInBrowser() {
+      const summaryEl = document.getElementById('test-summary');
+      const resultsEl = document.getElementById('test-results');
+      summaryEl.innerHTML = '<div class="summary-banner"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px;"></i>Ejecutando pruebas...</div>';
+      resultsEl.innerHTML = '';
+
+      const report = await window.DFDTestRunner.runAllTests();
+      const allPassed = report.failed === 0;
+
+      summaryEl.innerHTML = `
+        <div class="summary-banner ${allPassed ? 'summary-pass' : 'summary-fail'}">
+          <span><i class="fa-solid ${allPassed ? 'fa-circle-check' : 'fa-circle-xmark'}" style="margin-right:6px;"></i>${allPassed ? 'TODAS LAS PRUEBAS PASARON CON ÉXITO' : 'ALGUNAS PRUEBAS FALLARON'}</span>
+          <span>Total: ${report.total} | Pasaron: ${report.passed} | Fallaron: ${report.failed}</span>
+        </div>
+      `;
+
+      for (const suite of report.results) {
+        const card = document.createElement('div');
+        card.className = 'suite-card';
+        card.innerHTML = `
+          <div class="suite-title"><i class="fa-solid fa-cubes" style="color:var(--accent);margin-right:6px;"></i>${suite.name}</div>
+          <div>
+            ${suite.tests.map(t => `
+              <div class="test-row">
+                <div>
+                  <span class="${t.status === 'PASS' ? 'badge-pass' : 'badge-fail'}">
+                    <i class="fa-solid ${t.status === 'PASS' ? 'fa-check' : 'fa-xmark'}"></i> ${t.status === 'PASS' ? 'PASS' : 'FAIL'}
+                  </span>
+                  <span style="margin-left:8px;">${t.name}</span>
+                  ${t.error ? `<div class="error-detail">${t.error}</div>` : ''}
+                </div>
+                <span style="color:var(--text-muted);font-family:var(--font-mono);font-size:11.5px;">${t.durationMs} ms</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        resultsEl.appendChild(card);
+      }
+    }
+
+    document.getElementById('btn-rerun').addEventListener('click', executeSuiteInBrowser);
+    window.addEventListener('DOMContentLoaded', executeSuiteInBrowser);
+  </script>
+</body>
+</html>

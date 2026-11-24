@@ -1,0 +1,27 @@
+{
+  "name": "df-decode v1.0 — Editor e Intérprete de Diagramas de Flujo",
+  "short_name": "df-decode",
+  "version": "1.0.0",
+  "description": "df-decode v1.0: Entorno web y de escritorio para diagramas de flujo inspirado en el clásico DFD. Diseña, ejecuta y depura algoritmos con subprogramas, vectores y generación de código.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#1f3a6b",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

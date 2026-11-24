@@ -1,0 +1,46 @@
+#!/bin/bash
+set -e
+
+# 1. Enlazar ejecutable en /usr/bin/df-decode y alias /usr/bin/decod
+cat > '/usr/bin/df-decode' << 'WRAPPER_EOF'
+#!/bin/bash
+exec /opt/df-decode/df-decode --no-sandbox "$@"
+WRAPPER_EOF
+chmod 0755 '/usr/bin/df-decode'
+ln -sf '/usr/bin/df-decode' '/usr/bin/decod' 2>/dev/null || true
+
+# 2. Asignar permisos SUID al sandbox de Chromium si existe
+if [ -f '/opt/df-decode/chrome-sandbox' ]; then
+    chown root:root '/opt/df-decode/chrome-sandbox' 2>/dev/null || true
+    chmod 4755 '/opt/df-decode/chrome-sandbox' 2>/dev/null || true
+fi
+
+# 3. Configurar perfil de AppArmor para Ubuntu 24.04 LTS y posteriores (soporte unprivileged userns)
+if [ -d "/etc/apparmor.d" ]; then
+    cat > /etc/apparmor.d/df-decode << 'EOF'
+abi <abi/5.0>,
+include <tunables/global>
+
+profile df-decode /opt/df-decode/df-decode flags=(unconfined) {
+  userns,
+  @{exec_path} mr,
+
+  include if exists <local/df-decode>
+}
+EOF
+    chmod 0644 /etc/apparmor.d/df-decode 2>/dev/null || true
+    if command -v apparmor_parser >/dev/null 2>&1; then
+        apparmor_parser -r /etc/apparmor.d/df-decode 2>/dev/null || true
+    fi
+fi
+
+# 4. Actualizar base de datos de tipos MIME y accesos de escritorio
+if hash update-mime-database 2>/dev/null; then
+    update-mime-database /usr/share/mime || true
+fi
+
+if hash update-desktop-database 2>/dev/null; then
+    update-desktop-database /usr/share/applications || true
+fi
+
+exit 0

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="modern-dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:;" />
+  <title>df-decode v1.0 — Editor e Intérprete de Diagramas de Flujo</title>
+  <meta name="description" content="df-decode v1.0 — Editor e intérprete moderno de diagramas de flujo inspirado en el clásico DFD. Diseña, ejecuta y depura algoritmos con subprogramas, vectores, matrices, exportación a código y soporte nativo para .dfx y .dfd." />
+  <meta name="theme-color" content="#1f3a6b" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/icon.svg" />
+  <link rel="stylesheet" href="assets/fontawesome/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+</head>
+<body>
+  <!-- TOP MENU BAR (Classic + Modern hybrid) -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo" title="df-decode">
+        <img src="assets/icon.svg" alt="df-decode" width="30" height="30" style="display:block;border-radius:7px;" />
+      </div>
+      <span class="brand-title">df-decode</span>
+      <span class="brand-badge" title="Versión de lanzamiento V1.0">v1.0</span>
+      <span id="file-name-badge" class="file-name-badge" title="Archivo actual">Sin_titulo.dfx</span>
+    </div>
+
+    <nav class="menubar" aria-label="Menú Principal">
+      <div class="menu-item">
+        <button class="menu-trigger">Archivo</button>
+        <div class="menu-dropdown">
+          <button data-action="new-project"><span><i class="fa-solid fa-file-circle-plus menu-icon"></i> Nuevo proyecto</span><kbd>Alt+N</kbd></button>
+          <button data-action="open-file"><span><i class="fa-solid fa-folder-open menu-icon"></i> Abrir (.dfx / .dfd)...</span><kbd>Ctrl+O</kbd></button>
+          <hr />
+          <button data-action="save-dfx"><span><i class="fa-solid fa-floppy-disk menu-icon"></i> Guardar como .dfx</span><kbd>Ctrl+S</kbd></button>
+          <button data-action="save-dfd"><span><i class="fa-solid fa-file-export menu-icon"></i> Exportar a DFD clásico (.dfd)</span></button>
+          <button data-action="share-link"><span><i class="fa-solid fa-share-nodes menu-icon"></i> Compartir enlace directo...</span></button>
+          <hr />
+          <button data-action="export-svg"><span><i class="fa-solid fa-file-image menu-icon"></i> Exportar imagen SVG</span></button>
+          <button data-action="export-png"><span><i class="fa-solid fa-image menu-icon"></i> Exportar imagen PNG</span></button>
+          <hr />
+          <button data-action="exit-app"><span><i class="fa-solid fa-right-from-bracket menu-icon"></i> Salir</span><kbd>Alt+F4</kbd></button>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-trigger">Edición</button>
+        <div class="menu-dropdown">
+          <button data-action="undo"><span><i class="fa-solid fa-rotate-left menu-icon"></i> Deshacer</span><kbd>Ctrl+Z</kbd></button>
+          <button data-action="redo"><span><i class="fa-solid fa-rotate-right menu-icon"></i> Rehacer</span><kbd>Ctrl+Y</kbd></button>
+          <hr />
+          <button data-action="edit-selected"><span><i class="fa-solid fa-pen-to-square menu-icon"></i> Editar objeto seleccionado</span><kbd>Enter</kbd></button>
+          <button data-action="copy-selected"><span><i class="fa-solid fa-copy menu-icon"></i> Copiar objeto</span><kbd>Ctrl+C</kbd></button>
+          <button data-action="cut-selected"><span><i class="fa-solid fa-scissors menu-icon"></i> Cortar objeto</span><kbd>Ctrl+X</kbd></button>
+          <button data-action="paste-selected"><span><i class="fa-solid fa-paste menu-icon"></i> Pegar objeto</span><kbd>Ctrl+V</kbd></button>
+          <button data-action="delete-selected"><span><i class="fa-solid fa-trash-can menu-icon"></i> Eliminar objeto</span><kbd>Supr</kbd></button>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-trigger">Objeto</button>
+        <div class="menu-dropdown">
+          <button data-action="tool-cursor"><span><i class="fa-solid fa-arrow-pointer menu-icon"></i> Cursor de selección</span><kbd>Esc</kbd></button>
+          <hr />
+          <button data-action="tool-ASIGNACION"><span><i class="fa-regular fa-square menu-icon"></i> Asignación</span><kbd>1</kbd></button>
+          <button data-action="tool-CICLOMIENTRAS"><span><i class="fa-solid fa-rotate menu-icon"></i> Ciclo Mientras (While)</span><kbd>2</kbd></button>
+          <button data-action="tool-CICLOPARA"><span><i class="fa-solid fa-repeat menu-icon"></i> Ciclo Para (For)</span><kbd>3</kbd></button>
+          <button data-action="tool-DECISION"><span><i class="fa-solid fa-code-branch menu-icon"></i> Decisión (If/Else)</span><kbd>4</kbd></button>
+          <button data-action="tool-LECTURA"><span><i class="fa-solid fa-keyboard menu-icon"></i> Lectura (Entrada)</span><kbd>5</kbd></button>
+          <button data-action="tool-IMPRESION"><span><i class="fa-solid fa-display menu-icon"></i> Salida (Impresión)</span><kbd>6</kbd></button>
+          <button data-action="tool-LLAMADA"><span><i class="fa-solid fa-diagram-project menu-icon"></i> Llamada a Subprograma</span><kbd>7</kbd></button>
+          <hr />
+          <button data-action="new-subprogram"><span><i class="fa-solid fa-plus menu-icon"></i> Nuevo Subprograma</span><kbd>Ctrl+M</kbd></button>
+          <button data-action="delete-subprogram"><span><i class="fa-solid fa-minus menu-icon"></i> Eliminar Subprograma actual</span></button>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-trigger">Ver</button>
+        <div class="menu-dropdown">
+          <button data-action="zoom-in"><span><i class="fa-solid fa-magnifying-glass-plus menu-icon"></i> Acercar (Zoom +)</span><kbd>+</kbd></button>
+          <button data-action="zoom-out"><span><i class="fa-solid fa-magnifying-glass-minus menu-icon"></i> Alejar (Zoom -)</span><kbd>-</kbd></button>
+          <button data-action="zoom-reset"><span><i class="fa-solid fa-crosshairs menu-icon"></i> Centrar y ajustar (100%)</span><kbd>0</kbd></button>
+          <hr />
+          <button data-action="toggle-panel"><span><i class="fa-solid fa-table-columns menu-icon"></i> Mostrar/Ocultar Panel Lateral</span></button>
+          <button data-action="toggle-console"><span><i class="fa-solid fa-terminal menu-icon"></i> Mostrar/Ocultar Consola E/S</span></button>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-trigger">Ejecución</button>
+        <div class="menu-dropdown">
+          <button data-action="run-start"><span><i class="fa-solid fa-play menu-icon" style="color:var(--success);"></i> Ejecutar algoritmo</span><kbd>F9</kbd></button>
+          <button data-action="run-step"><span><i class="fa-solid fa-forward-step menu-icon" style="color:var(--accent);"></i> Paso simple (Depurar)</span><kbd>F7</kbd></button>
+          <button data-action="run-pause"><span><i class="fa-solid fa-pause menu-icon" style="color:var(--warning);"></i> Pausar</span></button>
+          <button data-action="run-stop"><span><i class="fa-solid fa-stop menu-icon" style="color:var(--danger);"></i> Detener</span><kbd>Ctrl+F2</kbd></button>
+          <hr />
+          <button data-action="open-evaluator"><span><i class="fa-solid fa-calculator menu-icon"></i> Evaluador de expresiones...</span><kbd>F4</kbd></button>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-trigger">Opciones</button>
+        <div class="menu-dropdown">
+          <button data-action="angles-deg"><span id="check-deg" class="menu-icon"><i class="fa-solid fa-check"></i></span> Ángulos en Grados</button>
+          <button data-action="angles-rad"><span id="check-rad" class="menu-icon">&nbsp;</span> Ángulos en Radianes</button>
+          <hr />
+          <button data-action="theme-dark"><i class="fa-solid fa-moon menu-icon"></i> Tema Moderno Oscuro</button>
+          <button data-action="theme-light"><i class="fa-solid fa-sun menu-icon"></i> Tema Moderno Claro</button>
+          <button data-action="theme-retro"><i class="fa-solid fa-desktop menu-icon"></i> Tema Clásico Retro (Estilo DFD Clásico)</button>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-trigger">Ejemplos</button>
+        <div class="menu-dropdown" id="examples-menu-list">
+          <!-- Populated dynamically from examples.js -->
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-trigger">Ayuda</button>
+        <div class="menu-dropdown">
+          <button data-action="open-help"><span><i class="fa-solid fa-book-open menu-icon"></i> Manual de Funciones y Operadores DFD</span><kbd>F1</kbd></button>
+          <button data-action="open-about"><span><i class="fa-solid fa-circle-info menu-icon"></i> Acerca de df-decode</span></button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="header-QuickActions">
+      <button id="btn-install-pwa" class="btn-xs hidden" style="background:var(--success);color:#fff;border:none;" title="Instalar df-decode como aplicación offline">
+        <i class="fa-solid fa-download"></i> Instalar App
+      </button>
+      <button class="btn-xs" data-action="share-link" title="Generar enlace directo para compartir este diagrama">
+        <i class="fa-solid fa-share-nodes"></i> Compartir
+      </button>
+      <select id="theme-selector" class="select-compact" title="Cambiar apariencia">
+        <option value="modern-dark">Oscuro</option>
+        <option value="modern-light">Claro</option>
+        <option value="retro-classic">Clásico DFD 98</option>
+      </select>
+      <button class="btn-icon" data-action="open-help" title="Referencia de Funciones y Operadores (F1)"><i class="fa-solid fa-circle-question"></i></button>
+    </div>
+  </header>
+
+  <!-- MAIN ICON TOOLBAR (Authentic DFD layout + Modern Controls) -->
+  <div class="toolbar" role="toolbar" aria-label="Barra de herramientas">
+    <!-- File & Edit Group -->
+    <div class="tool-group">
+      <button class="tool-btn" data-action="new-project" title="Nuevo diagrama (Alt+N)">
+        <i class="fa-solid fa-file-circle-plus"></i>
+      </button>
+      <button class="tool-btn" data-action="open-file" title="Abrir archivo (.dfx o .dfd original) (Ctrl+O)">
+        <i class="fa-solid fa-folder-open"></i>
+      </button>
+      <button class="tool-btn" data-action="save-dfx" title="Guardar como .dfx (Ctrl+S)">
+        <i class="fa-solid fa-floppy-disk"></i>
+      </button>
+      <button class="tool-btn" data-action="save-dfd" title="Exportar archivo compatible con DFD Clásico (.dfd)">
+        <i class="fa-solid fa-file-export"></i>
+        <span class="tool-text-badge">.DFD</span>
+      </button>
+      <button class="tool-btn" data-action="share-link" title="Compartir diagrama mediante enlace web">
+        <i class="fa-solid fa-share-nodes"></i>
+      </button>
+    </div>
+
+    <div class="tool-divider"></div>
+
+    <!-- Undo/Redo/Delete -->
+    <div class="tool-group">
+      <button class="tool-btn" data-action="undo" id="btn-undo" title="Deshacer (Ctrl+Z)" disabled>
+        <i class="fa-solid fa-rotate-left"></i>
+      </button>
+      <button class="tool-btn" data-action="redo" id="btn-redo" title="Rehacer (Ctrl+Y)" disabled>
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+      <button class="tool-btn" data-action="cut-selected" title="Cortar objeto seleccionado (Ctrl+X)">
+        <i class="fa-solid fa-scissors"></i>
+      </button>
+      <button class="tool-btn" data-action="copy-selected" title="Copiar objeto seleccionado (Ctrl+C)">
+        <i class="fa-solid fa-copy"></i>
+      </button>
+      <button class="tool-btn" data-action="paste-selected" title="Pegar objeto en punto de inserción (Ctrl+V)">
+        <i class="fa-solid fa-paste"></i>
+      </button>
+      <button class="tool-btn danger-hover" data-action="delete-selected" title="Eliminar objeto seleccionado (Supr)">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    </div>
+
+    <div class="tool-divider"></div>
+
+    <!-- Execution & Debugging Controls -->
+    <div class="tool-group exec-group">
+      <button class="tool-btn btn-run" data-action="run-start" id="btn-run" title="Ejecutar diagrama (F9)">
+        <i class="fa-solid fa-play"></i>
+        <span class="btn-label">Ejecutar</span>
+      </button>
+      <button class="tool-btn btn-step" data-action="run-step" id="btn-step" title="Paso simple / Depurar línea por línea (F7)">
+        <i class="fa-solid fa-forward-step"></i>
+        <span class="btn-label">Paso</span>
+      </button>
+      <button class="tool-btn btn-pause" data-action="run-pause" id="btn-pause" title="Pausar ejecución" disabled>
+        <i class="fa-solid fa-pause"></i>
+      </button>
+      <button class="tool-btn btn-stop" data-action="run-stop" id="btn-stop" title="Detener ejecución (Ctrl+F2)" disabled>
+        <i class="fa-solid fa-stop"></i>
+      </button>
+      <div class="speed-control" title="Velocidad de ejecución (izq: pausado, der: inmediato)">
+        <label for="exec-speed"><i class="fa-solid fa-bolt" style="color:var(--accent);"></i></label>
+        <input type="range" id="exec-speed" min="0" max="1000" step="50" value="800" />
+      </div>
+    </div>
+
+    <div class="tool-divider"></div>
+
+    <!-- Flowchart Object Palette (Authentic DFD Icons) -->
+    <div class="tool-group palette-group" aria-label="Paleta de bloques DFD">
+      <button class="tool-btn palette-btn active" data-tool="CURSOR" data-action="tool-cursor" title="Cursor de Selección (Esc)">
+        <i class="fa-solid fa-arrow-pointer"></i>
+        <span class="btn-label">Cursor</span>
+      </button>
+      <button class="tool-btn palette-btn" data-tool="ASIGNACION" data-action="tool-ASIGNACION" title="Insertar Asignación (Tecla 1)">
+        <svg viewBox="0 0 32 22"><rect x="2" y="3" width="28" height="16" stroke="currentColor" stroke-width="2" fill="var(--shape-asignacion)"/></svg>
+        <span class="btn-label">Asignación</span>
+      </button>
+      <button class="tool-btn palette-btn" data-tool="CICLOMIENTRAS" data-action="tool-CICLOMIENTRAS" title="Insertar Ciclo Mientras (Tecla 2)">
+        <svg viewBox="0 0 32 22"><polygon points="2,3 30,3 30,13 16,20 2,13" stroke="currentColor" stroke-width="2" fill="var(--shape-mientras)"/></svg>
+        <span class="btn-label">Mientras</span>
+      </button>
+      <button class="tool-btn palette-btn" data-tool="CICLOPARA" data-action="tool-CICLOPARA" title="Insertar Ciclo Para (Tecla 3)">
+        <svg viewBox="0 0 32 22"><polygon points="7,3 25,3 30,11 25,19 7,19 2,11" stroke="currentColor" stroke-width="2" fill="var(--shape-para)"/></svg>
+        <span class="btn-label">Para</span>
+      </button>
+      <button class="tool-btn palette-btn" data-tool="DECISION" data-action="tool-DECISION" title="Insertar Decisión Condicional (Tecla 4)">
+        <svg viewBox="0 0 32 22"><polygon points="16,2 30,11 16,20 2,11" stroke="currentColor" stroke-width="2" fill="var(--shape-decision)"/></svg>
+        <span class="btn-label">Decisión</span>
+      </button>
+      <button class="tool-btn palette-btn" data-tool="LECTURA" data-action="tool-LECTURA" title="Insertar Lectura de Teclado (Tecla 5)">
+        <svg viewBox="0 0 32 22"><polygon points="2,4 30,4 25,19 2,19" stroke="currentColor" stroke-width="2" fill="var(--shape-lectura)"/></svg>
+        <span class="btn-label">Lectura</span>
+      </button>
+      <button class="tool-btn palette-btn" data-tool="IMPRESION" data-action="tool-IMPRESION" title="Insertar Salida por Pantalla (Tecla 6)">
+        <svg viewBox="0 0 32 22"><path d="M2,11 L18,3 L26,3 A4,8 0 0,1 26,19 L18,19 Z" stroke="currentColor" stroke-width="2" fill="var(--shape-impresion)"/></svg>
+        <span class="btn-label">Salida</span>
+      </button>
+      <button class="tool-btn palette-btn" data-tool="LLAMADA" data-action="tool-LLAMADA" title="Insertar Llamada a Subprograma (Tecla 7)">
+        <svg viewBox="0 0 32 22"><rect x="2" y="3" width="28" height="16" stroke="currentColor" stroke-width="2" fill="var(--shape-llamada)"/><line x1="6" y1="3" x2="6" y2="19" stroke="currentColor" stroke-width="2"/><line x1="26" y1="3" x2="26" y2="19" stroke="currentColor" stroke-width="2"/></svg>
+        <span class="btn-label">Llamada</span>
+      </button>
+    </div>
+
+    <div class="tool-divider"></div>
+
+    <!-- Zoom & Subprograms -->
+    <div class="tool-group">
+      <button class="tool-btn" data-action="zoom-out" title="Alejar (-)">
+        <i class="fa-solid fa-magnifying-glass-minus"></i>
+      </button>
+      <span id="zoom-level-text" class="zoom-indicator" title="Clic para restablecer zoom" data-action="zoom-reset">100%</span>
+      <button class="tool-btn" data-action="zoom-in" title="Acercar (+)">
+        <i class="fa-solid fa-magnifying-glass-plus"></i>
+      </button>
+      <button class="tool-btn" data-action="open-evaluator" title="Evaluador de Expresiones (F4)">
+        <i class="fa-solid fa-calculator"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- SUBPROGRAM TABS BAR -->
+  <div class="subprograms-bar">
+    <div class="tabs-scroll" id="subprogram-tabs">
+      <!-- Populated dynamically: Principal + Subprograms -->
+    </div>
+    <button class="btn-new-sub" data-action="new-subprogram" title="Crear nuevo Subprograma (Ctrl+M)">
+      <i class="fa-solid fa-plus"></i> Nuevo Subprograma
+    </button>
+    <div class="tool-hint-banner" id="active-tool-banner">
+      Modo Selección: Haz clic en un bloque para seleccionarlo o doble clic para editarlo.
+    </div>
+  </div>
+
+  <!-- WORKSPACE SPLIT AREA -->
+  <main class="workspace">
+    <!-- CENTER: FLOWCHART CANVAS + BOTTOM CONSOLE -->
+    <div class="canvas-column">
+      <div class="canvas-viewport" id="canvas-viewport" tabindex="0">
+        <!-- SVG Flowchart Renderer -->
+        <svg id="dfd-canvas" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dfd-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="var(--grid-dot)" />
+            </pattern>
+            <marker id="arrow-head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 8 5 L 0 9 z" fill="var(--line-color)" />
+            </marker>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dfd-grid)" id="grid-bg" />
+          <g id="viewport-transform">
+            <g id="edges-layer"></g>
+            <g id="insertion-points-layer"></g>
+            <g id="nodes-layer"></g>
+          </g>
+        </svg>
+
+        <!-- Floating Canvas Overlay Controls -->
+        <div class="canvas-floating-tools">
+          <button class="float-btn" data-action="zoom-reset" title="Centrar diagrama">
+            <i class="fa-solid fa-crosshairs"></i> Centrar
+          </button>
+          <button class="float-btn" data-action="export-png" title="Descargar imagen PNG">
+            <i class="fa-solid fa-camera"></i> PNG
+          </button>
+        </div>
+      </div>
+
+      <!-- BOTTOM RESIZER -->
+      <div class="resizer-horizontal" id="resizer-console" title="Arrastrar para redimensionar la consola"></div>
+
+      <!-- BOTTOM INTERACTIVE CONSOLE & LOGS -->
+      <section class="console-drawer" id="console-drawer">
+        <div class="console-header">
+          <div class="console-title">
+            <span><i class="fa-solid fa-terminal" style="color:var(--accent);margin-right:6px;"></i> Consola de Ejecución e Historial de E/S</span>
+            <span id="exec-status-pill" class="status-pill status-idle">Listo</span>
+          </div>
+          <div class="console-actions">
+            <label class="checkbox-inline" title="Si está activo, muestra las ventanas emergentes clásicas de DFD al leer o imprimir">
+              <input type="checkbox" id="toggle-classic-modals" checked />
+              Diálogos emergentes clásicos DFD
+            </label>
+            <button class="btn-xs" id="btn-clear-console" title="Limpiar consola">
+              <i class="fa-solid fa-broom"></i> Limpiar
+            </button>
+            <button class="btn-xs" data-action="toggle-console" title="Minimizar/Expandir consola">
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+        <div class="console-body" id="console-output">
+          <div class="console-line info">Bienvenido a df-decode. Diseña tu algoritmo o elige un ejemplo del menú superior y presiona <strong>Ejecutar (F9)</strong> o <strong>Paso (F7)</strong>.</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- SIDEBAR RESIZER -->
+    <div class="resizer-vertical" id="resizer-inspector" title="Arrastrar para redimensionar el panel lateral"></div>
+
+    <!-- RIGHT SIDEBAR: WATCH TABLE (PRUEBA DE ESCRITORIO) & LIVE CODE GENERATOR -->
+    <aside class="inspector-panel" id="inspector-panel">
+      <div class="inspector-tabs">
+        <button class="insp-tab active" data-tab="tab-watch">
+          <i class="fa-solid fa-eye" style="margin-right:6px;"></i> Variables
+        </button>
+        <button class="insp-tab" data-tab="tab-code">
+          <i class="fa-solid fa-code" style="margin-right:6px;"></i> Código
+        </button>
+        <button class="insp-tab" data-tab="tab-trace">
+          <i class="fa-solid fa-table-list" style="margin-right:6px;"></i> Prueba
+        </button>
+      </div>
+
+      <!-- TAB 1: WATCH VARIABLES & CALL STACK -->
+      <div class="insp-content active" id="tab-watch">
+        <div class="panel-section">
+          <div class="section-header">
+            <h4>Variables en Memoria</h4>
+            <span class="badge-count" id="var-count-badge">0</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="watch-table">
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Tipo</th>
+                  <th>Valor Actual</th>
+                </tr>
+              </thead>
+              <tbody id="watch-tbody">
+                <tr><td colspan="3" class="empty-cell">Sin variables activas. Ejecuta el diagrama para inspeccionar.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-header">
+            <h4>Pila de Llamadas (Call Stack)</h4>
+          </div>
+          <ul class="callstack-list" id="callstack-list">
+            <li class="empty-cell">Inactivo</li>
+          </ul>
+        </div>
+
+        <div class="panel-section quick-eval-box">
+          <div class="section-header">
+            <h4>Evaluador Rápido</h4>
+          </div>
+          <div class="quick-eval-row">
+            <input type="text" id="quick-eval-input" placeholder="Ej: SQRT(25) + 3 MOD 2" />
+            <button class="btn-primary btn-sm" id="btn-quick-eval">
+              <i class="fa-solid fa-calculator"></i> Evaluar
+            </button>
+          </div>
+          <div id="quick-eval-result" class="quick-eval-result"></div>
+        </div>
+      </div>
+
+      <!-- TAB 2: LIVE CODE GENERATOR -->
+      <div class="insp-content" id="tab-code">
+        <div class="code-toolbar">
+          <select id="code-lang-select" class="select-compact">
+            <option value="pseudocode">Pseudocódigo (PSeInt)</option>
+            <option value="python">Python 3</option>
+            <option value="javascript">JavaScript (ES6)</option>
+            <option value="cpp">C++</option>
+          </select>
+          <button class="btn-xs" id="btn-copy-code" title="Copiar código al portapapeles">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+        </div>
+        <pre class="code-preview"><code id="generated-code-box"></code></pre>
+      </div>
+
+      <!-- TAB 3: DESK CHECK / TRACE TABLE (PRUEBA DE ESCRITORIO) -->
+      <div class="insp-content" id="tab-trace">
+        <div class="section-header">
+          <h4>Historial de Pasos (Prueba de Escritorio)</h4>
+          <button class="btn-xs" id="btn-export-trace" title="Exportar tabla a CSV">
+            <i class="fa-solid fa-file-csv"></i> Exportar CSV
+          </button>
+        </div>
+        <div class="table-container trace-scroll">
+          <table class="data-table" id="trace-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Bloque</th>
+                <th>Detalle / Cambio</th>
+              </tr>
+            </thead>
+            <tbody id="trace-tbody">
+              <tr><td colspan="3" class="empty-cell">Aún no se ha ejecutado ningún paso.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- STATUS BAR -->
+  <footer class="statusbar">
+    <div class="status-left">
+      <span id="status-message">Listo.</span>
+    </div>
+    <div class="status-credits" title="Autor de df-decode v1.0">
+      © <span id="credits-year">2026</span> <strong>df-decode v1.0</strong> — Desarrollado por <strong>Walther Curo De La Cruz</strong> · GPLv3
+    </div>
+    <div class="status-right">
+      <span id="status-autosave" title="El progreso se guarda automáticamente en este navegador">
+        <i class="fa-solid fa-cloud-arrow-up" style="color:var(--success);margin-right:4px;"></i> Autoguardado activo
+      </span>
+      <span class="sep">|</span>
+      <span id="status-subprogram">Hoja: Principal</span>
+      <span class="sep">|</span>
+      <span id="status-angles">Ángulos: Grados (DEG)</span>
+      <span class="sep">|</span>
+      <span id="status-objects">Objetos: 2</span>
+    </div>
+  </footer>
+
+  <!-- HIDDEN FILE INPUT FOR OPENING .DFX, .DFDX AND .DFD FILES -->
+  <input type="file" id="hidden-file-input" accept=".dfx,.dfdx,.dfd,.json,.txt" style="display:none" />
+
+  <!-- MODAL BACKDROP & DIALOG CONTAINER -->
+  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-window" id="modal-window">
+      <div class="modal-header" id="modal-header">
+        <h3 id="modal-title">Editar Objeto</h3>
+        <button class="modal-close" id="modal-close-btn" title="Cerrar (Esc)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS (Pure Vanilla JS Architecture) -->
+  <script src="js/evaluator.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/dfd-format.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/codegen.js"></script>
+  <script src="js/examples.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/interpreter.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

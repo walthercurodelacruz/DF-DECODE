@@ -1,0 +1,130 @@
+{
+  "name": "df-decode",
+  "productName": "df-decode",
+  "version": "1.0.0",
+  "description": "Entorno Web y de Escritorio para Diseño, Ejecución y Depuración de Diagramas de Flujo de Datos (v1.0) — Inspirado en DFD clásico",
+  "author": "Walther Curo De La Cruz <walther@dfdecode.app>",
+  "license": "GPL-3.0-only",
+  "main": "electron/main.js",
+  "homepage": "https://github.com/walthercurodelacruz/DF-DECODE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/walthercurodelacruz/DF-DECODE.git"
+  },
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "test": "node tests/unit-tests.js",
+    "build:linux": "electron-builder --linux deb AppImage && npm run build:linux:rpm",
+    "build:linux:deb": "electron-builder --linux deb",
+    "build:linux:rpm": "electron-builder --linux rpm || bash scripts/build-rpm.sh",
+    "build:win": "electron-builder --win dir && (cd scripts && makensis installer.nsi)",
+    "build:all": "npm run build:linux && npm run build:win",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.dfdecode.app",
+    "productName": "df-decode",
+    "copyright": "Copyright © 2026 Walther Curo De La Cruz — Licencia GNU GPL v3.0",
+    "files": [
+      "index.html",
+      "manifest.json",
+      "css/**/*",
+      "js/**/*",
+      "assets/**/*",
+      "electron/**/*",
+      "!tests/**/*",
+      "!tests.html",
+      "!**/*.md",
+      "!dist/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "fileAssociations": [
+      {
+        "ext": "dfx",
+        "name": "Diagrama de Flujo df-decode",
+        "description": "Archivo de diagrama de flujo de datos df-decode",
+        "role": "Editor",
+        "mimeType": "application/x-dfx"
+      },
+      {
+        "ext": "dfd",
+        "name": "Diagrama DFD",
+        "description": "Archivo de diagrama de flujo clásico DFD",
+        "role": "Editor",
+        "mimeType": "application/x-dfd"
+      },
+      {
+        "ext": "dfdx",
+        "name": "Diagrama df-decode JSON",
+        "description": "Archivo de diagrama df-decode formato JSON",
+        "role": "Editor",
+        "mimeType": "application/x-dfdx"
+      }
+    ],
+    "linux": {
+      "maintainer": "Walther Curo De La Cruz <walther@dfdecode.app>",
+      "target": [
+        "deb",
+        "rpm",
+        "AppImage"
+      ],
+      "icon": "assets/icon-512.png",
+      "category": "Education;Development;",
+      "synopsis": "Editor e Intérprete de Diagramas de Flujo de Datos v1.0 (Inspirado en DFD)",
+      "description": "df-decode v1.0 es una implementación original desde cero, inspirada en el clásico software DFD, para el diseño, ejecución paso a paso y depuración de algoritmos en diagramas de flujo.",
+      "executableArgs": [
+        "--no-sandbox"
+      ],
+      "desktop": {
+        "StartupWMClass": "df-decode"
+      }
+    },
+    "deb": {
+      "packageCategory": "education",
+      "priority": "optional",
+      "afterInstall": "scripts/postinst",
+      "afterRemove": "scripts/postrm"
+    },
+    "rpm": {
+      "packageCategory": "Applications/Engineering",
+      "afterInstall": "scripts/postinst",
+      "afterRemove": "scripts/postrm"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "df-decode",
+      "uninstallDisplayName": "df-decode — Desinstalar",
+      "artifactName": "df-decode-setup-${version}.${ext}",
+      "packElevateHelper": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  }
+}

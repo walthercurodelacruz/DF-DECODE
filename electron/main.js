@@ -5,18 +5,23 @@ const fs = require('fs');
 let mainWindow = null;
 let fileToOpenOnLaunch = null;
 
+// Identificador de modelo de usuario de aplicación en Windows (barra de tareas, accesos directos y asociaciones)
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.dfdecode.app');
+}
+
 // Enfoque Single Instance Lock (evita abrir múltiples instancias si el usuario abre varios archivos)
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
-  app.on('second-instance', (event, commandLine) => {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
 
-      // En Windows el archivo viene en commandLine
-      const filePath = findFilePathInArgs(commandLine);
+      // En Windows y Linux el archivo viene en commandLine
+      const filePath = findFilePathInArgs(commandLine, workingDirectory);
       if (filePath) {
         sendFileToRenderer(filePath);
       }
@@ -24,13 +29,20 @@ if (!gotTheLock) {
   });
 }
 
-function findFilePathInArgs(args) {
+function findFilePathInArgs(args, cwd) {
+  if (!Array.isArray(args)) return null;
   for (let i = 1; i < args.length; i++) {
     const arg = args[i];
     if (arg && !arg.startsWith('--') && !arg.startsWith('-')) {
       const ext = path.extname(arg).toLowerCase();
-      if (['.dfx', '.dfd', '.dfdx'].includes(ext) && fs.existsSync(arg)) {
-        return path.resolve(arg);
+      if (['.dfx', '.dfd', '.dfdx'].includes(ext)) {
+        const candidate = cwd ? path.resolve(cwd, arg) : path.resolve(arg);
+        if (fs.existsSync(candidate)) {
+          return candidate;
+        }
+        if (fs.existsSync(arg)) {
+          return path.resolve(arg);
+        }
       }
     }
   }

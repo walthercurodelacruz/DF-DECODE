@@ -97,7 +97,9 @@ DF-DECODE/
 │   ├── interpreter.js         # Intérprete asíncrono paso a paso y pila de llamadas
 │   └── app.js                 # Controlador de interfaz, eventos, modales e historial Undo/Redo
 ├── scripts/
+│   ├── after-pack.js          # Hook afterPack para incrustar icono y metadatos en df-decode.exe
 │   ├── build-rpm.sh           # Constructor nativo de paquetes .rpm con rpmbuild
+│   ├── build-win.js           # Constructor multiplataforma del instalador Windows (.exe)
 │   ├── postinst               # Script post-instalación Linux (enlaces CLI, MIME y AppArmor)
 │   ├── postrm                 # Script post-desinstalación Linux
 │   └── installer.nsi          # Script NSIS para instalador de Windows (.exe)
@@ -172,6 +174,17 @@ Una vez instalado en Linux, puedes iniciar la aplicación desde el menú de apli
 df-decode mi_algoritmo.dfx
 ```
 
+### <i class="fa-brands fa-windows"></i> Instalación en Windows (Windows 10 / 11 x64)
+
+Ejecuta el instalador asistente NSIS generado en la carpeta `dist/`:
+```powershell
+.\dist\df-decode-setup-1.0.0.exe
+```
+El instalador para Windows configura automáticamente:
+* Acceso directo en el **Escritorio** y en el **Menú Inicio** (`df-decode`).
+* Asociación nativa de archivos **`.dfx`**, **`.dfd`** y **`.dfdx`** para abrir diagramas con doble clic desde el Explorador de Windows.
+* Desinstalador integrado en *Configuración de Windows → Aplicaciones instaladas*.
+
 ---
 
 ## <i class="fa-solid fa-gears"></i> Desarrollo, Pruebas y Compilación desde el Código Fuente
@@ -179,6 +192,7 @@ df-decode mi_algoritmo.dfx
 ### <i class="fa-solid fa-terminal"></i> Requisitos Previos
 * **Node.js** `>= 18.x` y **npm**
 * En Linux para empaquetado nativo: `rpmbuild` (paquete `rpm-build` en Fedora o `rpm` en Ubuntu/Debian) y `dpkg`.
+* En Windows para empaquetado nativo: `electron-builder` descarga y gestiona automáticamente las herramientas de compilación NSIS.
 
 ### <i class="fa-solid fa-code-commit"></i> Comandos del Proyecto
 
@@ -192,13 +206,16 @@ npm test
 # 3. Iniciar df-decode v1.0 en modo escritorio de desarrollo (Electron)
 npm start
 
-# 4. Generar instalador .deb para Debian / Ubuntu
+# 4. Generar instalador .exe (NSIS x64) para Windows
+npm run build:win
+
+# 5. Generar instalador .deb para Debian / Ubuntu
 npm run build:linux:deb
 
-# 5. Generar instalador .rpm para Fedora / RHEL / openSUSE
+# 6. Generar instalador .rpm para Fedora / RHEL / openSUSE
 npm run build:linux:rpm
 
-# 6. Generar todos los paquetes para Linux (.deb, .rpm y .AppImage)
+# 7. Generar todos los paquetes para Linux (.deb, .rpm y .AppImage)
 npm run build:linux
 ```
 
